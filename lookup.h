@@ -1,9 +1,3 @@
-const float g = 9.80665;
-const float rEarth = 6356766;
-const float Runiv = 8314.46;
-const float molAir = 28.9644;
-const float RsAir = Runiv / molAir;
-
 namespace getISA {
 	const int Href[9] = {
 		0,
@@ -117,11 +111,18 @@ namespace getISA {
 		cond.rho = cond.P / (cond.T * RsAir);
 	}
 
-	void readISA(ISA &cond) {
-		std::cout << "Geometric altitude: " << cond.alt << " metres\n";
-		std::cout << "Geopotential altitude: " << cond.H << " metres\n";
-		std::cout << "Temperature: " << cond.T << " Kelvin\n";
-		std::cout << "Pressure: " << cond.P << " Pascal\n";
-		std::cout << "Density: " << cond.rho << " kg/m3\n \n";
+	void addISAtoStation(Station &sta, ISA &cond) {
+		sta.P = cond.P;
+		sta.T = cond.T;
+		sta.rho = cond.rho;
 	}
+
+	// this is shitty code I'm removing
+	//void readISA(ISA &cond) {
+	//	std::cout << "Geometric altitude: " << cond.alt << " metres\n";
+	//	std::cout << "Geopotential altitude: " << cond.H << " metres\n";
+	//	std::cout << "Temperature: " << cond.T << " Kelvin\n";
+	//	std::cout << "Pressure: " << cond.P << " Pascal\n";
+	//	std::cout << "Density: " << cond.rho << " kg/m3\n \n";
+	//} really slow because it's doing loads of system calls
 }
