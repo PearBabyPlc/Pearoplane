@@ -1,0 +1,10 @@
+const float g = 9.80665;
+const float rEarth = 6356766;
+const float Runiv = 8314.46;
+const float molAir = 28.9644;
+const float RsAir = Runiv / molAir;
+const double e = exp(1.0);
+const float Theta = 3055 + (5 / 9);
+const float gamDiatomic = 1.4;
+const float CpiAir = 1005;
+
