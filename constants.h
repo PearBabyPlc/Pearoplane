@@ -7,4 +7,3 @@ const double e = exp(1.0);
 const float Theta = 3055 + (5 / 9);
 const float gamDiatomic = 1.4;
 const float CpiAir = 1005;
-
