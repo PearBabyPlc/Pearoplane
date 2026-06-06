@@ -7,6 +7,17 @@
 #include "lookup.h"
 using namespace std;
 
+// this is the physics model
+// it will interface with vehicle.cpp, a parametric definition of the aircraft
+// the physics model will update the rotation/position/fuel/temp variables of the aircraft
+// then display.cpp will render the aircraft and allow for GUI control over the craft
+// sliders and stuff for thrust and whatnot, wasd for actual flight simming
+// all preliminary
+//
+// this physics.cpp is set up as a main file with the function below to allow for execution
+// and debugging in the console, just on its own. as the program is written it'll be
+// condensed down so there's only one int main() in the whole project. cmake stuff 
+
 int main() {
 	clock_t before = clock();
 
