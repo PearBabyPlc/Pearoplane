@@ -11,8 +11,7 @@ struct Station {
 
 namespace calImp {
 	void getGam(Station &sta) {
-		double ThetaT = Theta / sta.T;
-		//double ThetaTexp = exp(ThetaT);
+		double ThetaT = Theta / sta.T;	
 		double ThetaTexpsub1 = exp(ThetaT) - 1;
 		double ThetaTexpsub1sq = pow(ThetaTexpsub1, 2);
 		double ThetaTsq = pow(ThetaT, 2);
