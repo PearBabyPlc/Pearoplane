@@ -4,6 +4,7 @@ const float Runiv = 8314.46;
 const float molAir = 28.9644;
 const float RsAir = Runiv / molAir;
 const double e = exp(1.0);
+const double pi = 3.14159265359;
 const float Theta = 3055 + (5 / 9);
 const float gamDiatomic = 1.4;
 const float CpiAir = 1005;
