@@ -3,7 +3,6 @@
 #include <cmath>
 #include <string>
 #include <ctime>
-#include "constants.h"
 #include "formulaegg.h"
 #include "lookup.h"
 using namespace std;
@@ -15,44 +14,43 @@ using namespace std;
 int main() {
 	cout << "Hello. aero.cpp is running!\n";
 	cout << "Begin benchmark \n\n";
+	string benchmark = "\n";
+	// benchmarking normal shock relations
+
+	Station staTest;
 	clock_t before = clock();
-	string benchmark;
-
-	for (int i = 0; i < 101; i++) {
-		int random1 = rand() % 101;
-		int random2 = rand() % 101;
-		int random3 = rand() % 101;
-		float Mtest = 3 + (random1 * 0.1);
-		float Atest = radInDeg * (random2 / 3);
-		float altTest = 1 + (random3 * 400);
-		getISA::ISA isaTest;
-		isaTest.alt = altTest;
-		getISA::getPTrho(isaTest);
-		Station staTest;
+	for (int i = 1; i < 21; i++) {
+		float Mtest = (i * 1) + 1;
+		staTest.pos = i;
 		staTest.M = Mtest;
-		getISA::addISAtoStation(staTest, isaTest);
-		calImp::getGam(staTest);
-		calImp::getCp(staTest);
-		isen::getTt_fromT(staTest);
+		staTest.gam = 1.4;
 		isen::getPt_fromP(staTest);
-		float Srad = oblique::radShockAngle(staTest, Atest);
-		float Sdeg = degInRad * Srad;
-		float Adeg = random2 / 3;
-		//string benchAdd = "M=" + Mtest + " Adeg=" + Adeg + " alt=" + altTest + " Sdeg=" + Sdeg + "\n";
-		benchmark.append("M+");
-		benchmark.append(to_string(Mtest));
-		benchmark.append(" Adeg=");
-		benchmark.append(to_string(Adeg));
-		benchmark.append(" alt=");
-		benchmark.append(to_string(altTest));
-		benchmark.append(" Sdeg=");
-		benchmark.append(to_string(Sdeg));
-		benchmark.append("\n");
-
+		isen::getTt_fromT(staTest);
+		isen::getVelocity(staTest);
+		float pPt = staTest.Pt;
+		float pTt = staTest.Tt;
+		normal::updateStationNormal(staTest);
+//		benchmark.append("pos=");
+//		benchmark.append(to_string(staTest.pos));
+//		benchmark.append(" pM=");
+//		benchmark.append(to_string(Mtest));
+//		benchmark.append(" M=");
+//		benchmark.append(to_string(staTest.M));
+//		benchmark.append(" Pr=");
+//		benchmark.append(to_string(staTest.P / 101325));
+//		benchmark.append(" Tr=");
+//		benchmark.append(to_string(staTest.T / 288.15));
+//		benchmark.append(" rhoR=");
+//		benchmark.append(to_string(staTest.rho / 1.225));
+//		benchmark.append(" Ptr=");
+//		benchmark.append(to_string(staTest.Pt / pPt));
+//		benchmark.append(" Ttr=");
+//		benchmark.append(to_string(staTest.Tt / pTt));
+//		benchmark.append("\n");
 	}
-	cout << benchmark;
-
 	clock_t duration = clock() - before;
+	cout << benchmark;
+	
 	cout << "\n\nDuration: " << (float)duration * 1000 / CLOCKS_PER_SEC << " ms";
 	return 0;
 }
