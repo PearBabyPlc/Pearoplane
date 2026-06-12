@@ -35,7 +35,6 @@ void radToDeg(float &angle) {
 
 // FUNDAMENTAL STRUCTS AND ENUMS //
 // required for basically all the formulaegg/solvers void functions to work
-// updates: added position int and velocity parameter
 struct Station {
 	int pos = 0;
 	float M = 0;
@@ -47,7 +46,17 @@ struct Station {
 	float Pt = 101325;
 	float Tt = 288.15;
 	float V = 0;
+	float A = 0;
+	float mdot = 0;
 };
+
+void getA_fromMdot(Station &sta) {
+	sta.A = sta.mdot / (sta.rho * sta.V);
+}
+
+void getMdot_fromA(Station &sta) {
+	sta.mdot = sta.rho * sta.V * sta.A;
+}
 
 enum ShockType {WEAK, STRONG, NORMAL, DEBUG};
 
@@ -123,6 +132,9 @@ namespace isen {
 	}
 	void getVelocity(Station &sta) {
 		sta.V = sta.M * sqrt(RsAir * sta.gam * sta.T);
+	}
+	void getMach(Station &sta) {
+		sta.M = sta.V / sqrt(RsAir * sta.gam * sta.T);
 	}
 	// this will require updating at the same time as calImp
 	// can't assume the station is constantly diatomic only with combustion products
@@ -285,8 +297,47 @@ namespace prandtlMeyer {
 }
 
 // RAYLEIGH FLOW RELATIONS //
-// for combustion (at some point)
+// for combustion
 namespace rayleigh {
+	double Tt_Ttstar(Station &sta, float &M) {
+		double aTtstar = 1 + sta.gam * pow(M, 2);
+		return ((2 * (sta.gam + 1) * pow(M, 2)) / pow(aTtstar, 2)) * (1 + ((sta.gam - 1) / 2) * pow(M, 2));
+	}
+	double Pt_Ptstar(Station &sta, float &M) {
+		double aPtstar = (2 / (sta.gam + 1)) * (1 + ((sta.gam - 1) / 2) * pow(M, 2));
+		double bPtstar = sta.gam / (sta.gam - 1);
+		return ((sta.gam + 1) / (1 + sta.gam * pow(M, 2))) * pow(aPtstar, bPtstar);
+	}
+	double T_Tstar(Station &sta, float &M) {
+		float aTstar = sta.gam + 1;
+		double bTstar = 1 + sta.gam * pow(M, 2);
+		return (aTstar * pow(M, 2)) / pow(bTstar, 2);
+	}
+	double P_Pstar(Station &sta, float &M) {
+		return (sta.gam + 1) / (1 + sta.gam * pow(M, 2));
+	}
+	void updateStation_plusMstep(Station &sta, float Mstep) {
+		float Ttstar = sta.Tt / Tt_Ttstar(sta, sta.M);
+		float Ptstar = sta.Pt / Pt_Ptstar(sta, sta.M);
+		float Tstar = sta.T / T_Tstar(sta, sta.M);
+		float Pstar = sta.P / P_Pstar(sta, sta.M);
+		float Mout = sta.M + Mstep;
+		float Ttout = Ttstar * Tt_Ttstar(sta, Mout);
+		float Ptout = Ptstar * Pt_Ptstar(sta, Mout);
+		float Tout = Tstar * T_Tstar(sta, Mout);
+		float Pout = Pstar * P_Pstar(sta, Mout);
+		if (Ttstar >= Ttout) {
+			sta.M = Mout;
+			sta.P = Pout;
+			sta.T = Tout;
+			calImp::getGam(sta);
+			calImp::getCp(sta);
+			isen::getRho_fromPT(sta);
+			sta.Pt = Ptout;
+			sta.Tt = Ttout;
+			isen::getVelocity(sta);
+		}
+	}
 }
 
 // FANNO FLOW RELATIONS //
