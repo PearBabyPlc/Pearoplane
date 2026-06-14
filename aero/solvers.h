@@ -82,6 +82,30 @@ void printExpansionFan(ExpansionFan &fan, string &print) {
 	print.append("\n");
 }
 
+void printStrVec(vector<string> &StrVec, string &print) {
+	vector<string>::iterator i;
+	for (i = StrVec.begin(); i != StrVec.end(); ++i) {
+		print.append(*i);
+		print.append("\n");
+	}
+}
+
+void printIntVec(vector<int> &IntVec, string &print) {
+	vector<int>::iterator i;
+	for (i = IntVec.begin(); i != IntVec.end(); ++i) {
+		print.append(to_string(*i));
+		print.append("\n");
+	}
+}
+
+void printFloatVec(vector<float> &FloatVec, string &print) {
+	vector<float>::iterator i;
+	for (i = FloatVec.begin(); i != FloatVec.end(); ++i) {
+		print.append(to_string(*i));
+		print.append("\n");
+	}
+}
+
 void getAmbientStation(Station &sta, float &altitude) {
 	getISA::ISA isaStruct;
 	isaStruct.alt = altitude;
@@ -161,32 +185,67 @@ void mixStationFlows(Station &sta, Station &add) {
 	sta.pos = add.pos + 1;
 }
 
+void splitStationFlows(Station &sta, Station &byp, float &bypR) {
+	byp.M = sta.M;
+	byp.P = sta.P;
+	byp.T = sta.T;
+	byp.rho = sta.rho;
+	byp.gam = sta.gam;
+	byp.Cp = sta.Cp;
+	byp.Pt = sta.Pt;
+	byp.Tt = sta.Tt;
+	byp.V = sta.V;
+	float mdotIn = sta.mdot;
+	sta.mdot = mdotIn / (bypR + 1.0);
+	byp.mdot = (bypR * mdotIn) / (bypR + 1.0);
+	getA_fromMdot(sta);
+	getA_fromMdot(byp);
+}
+
 // TODO probably create structs for intake, diffuser, combustor, convergingThroat, ejector, compressor, turbine
 
-void subsonicCombustion(Station &sta, float &fuel, float &maxTemp) {
+struct Combustor {
+	float fuelMdot = 0.0;
+	float maxTemp = 1800.0; // highest reliable jet turbine inlet temp
+	float TtMax;
+	float maxMach = 0.9; // max mach for stable combustion, complete guesstimate, just here to prevent endless loop
+	float fuelLHV = 119600000.0;
+	int pos = 0;
+};
+
+// float &fuel float &maxTemp
+void subsonicCombustion(Station &sta, Combustor &comb) {
 	float Ttprev;
-	float TtMax = sta.Tt / rayleigh::Tt_Ttstar(sta, sta.M);
-	cout << "\nTtMax = " << TtMax << "\n";
+	comb.TtMax = sta.Tt / rayleigh::Tt_Ttstar(sta, sta.M);
 	float &wipTt = Ttprev;
-	while (wipTt <= TtMax) {
+	while (wipTt <= comb.TtMax) {
 		wipTt = sta.Tt;
 		rayleigh::updateStation_plusMstep(sta, 0.0005);
 		getA_fromMdot(sta);
-		fuel += ((sta.Tt - wipTt) * sta.Cp * sta.mdot) / 119600000;
-		if (sta.T >= maxTemp) {
+		comb.fuelMdot += ((sta.Tt - wipTt) * sta.Cp * sta.mdot) / comb.fuelLHV;
+		if (sta.T >= comb.maxTemp) {
+			break;
+		}
+		if (sta.M > comb.maxMach) {
 			break;
 		}
 	}
-	sta.pos += 1;
+	comb.pos = sta.pos + 1;
+	sta.pos = comb.pos + 1;
 }
 
-const float diffuserLoss = 0.99995;
+struct Diffuser {
+	int pos = 0;
+	float Aout = 0.0;
+	float Mout = 0.01;
+	float loss = 0.99995;
+};
 // diffuser loss will one day be replaced with a more accurate Reynolds number based thingy
-void subsonicDiffuser(Station &sta, float &Aout) {
-	while (sta.A <= Aout) {
+void subsonicDiffuser(Station &sta, Diffuser &dif) {
+	while (sta.A <= dif.Aout) {
 		sta.M -= 0.001;
-		sta.Pt *= diffuserLoss;
-		sta.Tt *= diffuserLoss;
+		sta.Pt *= dif.loss;
+		sta.Tt *= dif.loss;
 		isen::getP_fromPt(sta);
 		isen::getT_fromTt(sta);
 		isen::getRho_fromPT(sta);
@@ -196,17 +255,26 @@ void subsonicDiffuser(Station &sta, float &Aout) {
 		isen::getTt_fromT(sta);
 		isen::getVelocity(sta);
 		getA_fromMdot(sta);
-		//cout << "\ndiffuser debug: M=" << sta.M << " P=" << sta.P << " T=" << sta.T << " rho=" << sta.rho << " gam=" << sta.gam << " Pt=" << sta.Pt << " Tt=" << sta.Tt << " A=" << sta.A << "\n";
-	}
-	sta.pos += 1;
+		if (sta.M <= dif.Mout) {
+			dif.Aout = sta.A;
+			break;
+		}
+	}	
+	dif.pos = sta.pos + 1;
+	sta.pos = dif.pos + 1;
 }
 
 const float throatLoss = 0.98;
+struct Throat {
+	int pos = 0;
+	float Mout = 1.0;
+	float loss = 0.98;
+};
 // same boundary layer consideration will be added here later. for ease of calculation I'm just going with a single step
-void convergingThroat(Station &sta) {
-	sta.M = 1.0;
-	sta.Pt *= throatLoss;
-	sta.Tt *= throatLoss;
+void convergingThroat(Station &sta, Throat &thr) {
+	sta.M = thr.Mout;
+	sta.Pt *= thr.loss;
+	sta.Tt *= thr.loss;
 	isen::getP_fromPt(sta);
 	isen::getT_fromTt(sta);
 	isen::getRho_fromPT(sta);
@@ -216,16 +284,22 @@ void convergingThroat(Station &sta) {
 	isen::getTt_fromT(sta);
 	isen::getVelocity(sta);
 	getA_fromMdot(sta);
-	sta.pos += 1;
+	thr.pos = sta.pos + 1;
+	sta.pos = thr.pos + 1;
 }
 
-const float ejectorLoss = diffuserLoss;
+struct Ejector {
+	int pos = 0;
+	float Aout = 0.0;
+	float Pamb = 101325;
+	float loss = 0.99995;
+};
 // same here, also one day vector stuff to create a pressure distribution thingy
-void supersonicEjector(Station &sta, float &Aout, float &Pamb) {
-	while (sta.A <= Aout) {
+void supersonicEjector(Station &sta, Ejector &eje) {
+	while (sta.A <= eje.Aout) {
 		sta.M += 0.001;
-		sta.Pt *= ejectorLoss;
-		sta.Tt *= ejectorLoss;
+		sta.Pt *= eje.loss;
+		sta.Tt *= eje.loss;
 		isen::getP_fromPt(sta);
 		isen::getT_fromTt(sta);
 		isen::getRho_fromPT(sta);
@@ -235,41 +309,81 @@ void supersonicEjector(Station &sta, float &Aout, float &Pamb) {
 		isen::getTt_fromT(sta);
 		isen::getVelocity(sta);
 		getA_fromMdot(sta);
-		//cout << "\nejector debug: M=" << sta.M << " P=" << sta.P << " T=" << sta.T << " rho=" << sta.rho << " gam=" << sta.gam << " Pt=" << sta.Pt << " Tt=" << sta.Tt << " A=" << sta.A << "\n";
-
-		if (sta.P <= Pamb) {
+		if (sta.P <= eje.Pamb) {
 			break;
 		}
 	}
-	sta.pos += 1;
+	eje.pos = sta.pos + 1;
+	sta.pos = eje.pos + 1;
 }
 
-void supersonicIntake(Station &sta, float &defAngle) {
+struct IntakeStation {
+	float P;
+	float Q;
+	float A;
+};
+struct IntakeShock {
+	float shockDeg;
+	bool axial;
+};
+struct Intake {
+	map<int, IntakeStation> InStats;
+	map<int, IntakeShock> InShocks;
+	map<int, string> ItTypes;
+	float defAngle;
+};
+void supersonicIntake(Station &sta, Intake &intake) {
 	Shock sho;
-	sho.defDeg = defAngle;
+	sho.defDeg = intake.defAngle;
+	IntakeStation InAmb;
+	InAmb.P = sta.P;
+	InAmb.Q = isen::getDynamicP(sta);
+	InAmb.A = sta.A;
+	intake.InStats[sta.pos] = InAmb;
+	intake.ItTypes[sta.pos] = "STAT";
+	float PrevFlowDeg = 0.0;
 	while (sho.type != NORMAL) {
 		solveShock(sta, sho);
+		IntakeStation InStat;
+		IntakeShock InShock;
+		InStat.P = sta.P;
+		InStat.Q = isen::getDynamicP(sta);
+		InStat.A = sta.A;
+		InShock.shockDeg = sho.shockDeg;
+		if (PrevFlowDeg == 0.0) {
+			InShock.axial = true;
+			PrevFlowDeg = intake.defAngle;
+		} else {
+			InShock.axial = false;
+			PrevFlowDeg = 0.0;
+		}
+		intake.InStats[sta.pos] = InStat;
+		intake.InShocks[sho.pos] = InShock;
+		intake.ItTypes[sta.pos] = "STAT";
+		intake.ItTypes[sho.pos] = "SHOCK";
 		if (sta.M <= 1.0) {
 			break;
 		}
 	}
-	sta.pos = 1; // for now
 }
 
-// this seems cooked probably try to rewrite
-void simpleCompressor(Station &sta, float &Pratio, float &PowerReq, float &eff) {
-	double a2gam = (sta.gam - 1) / sta.gam;
-	float prevPt = sta.Pt;
-	float prevTt = sta.Tt;
-	sta.Tt = sta.Tt * pow(Pratio, a2gam);
-	isen::getT_fromTt(sta);
+struct SimpleComp {
+	int pos = 0;
+	float Pratio = 2.0;
+	float Power = 0.0;
+	float eff = 0.8;
+};
+void simpleCompressor(Station &sta, SimpleComp &comp) {
+	double aTt2a = (sta.gam - 1) / sta.gam;
+	float Tt2a = sta.Tt * pow(comp.Pratio, aTt2a);
+	sta.T = Tt2a / isen::getTt_T(sta.gam, sta.M);
 	calImp::getGam(sta);
 	calImp::getCp(sta);
 	isen::getMach(sta);
-	aCW = (sta.gam - 1) / sta.gam;
-	PowerReq = (((sta.Cp * prevTt) / eff) * (pow(Pratio, aCW) - 1)) * sta.mdot;
-	sta.Pt = Pratio * prevPt;
-	sta.Tt = prevTt * pow(Pratio, aCw);
+	aTt2a = (sta.gam - 1) / sta.gam;
+	comp.Power = (sta.mdot * sta.Cp * sta.Tt * (pow(comp.Pratio, aTt2a) - 1)) / comp.eff;
+	sta.Pt *= comp.Pratio;
+	sta.Tt *= pow(comp.Pratio, aTt2a);
 	isen::getP_fromPt(sta);
 	isen::getT_fromTt(sta);
 	isen::getRho_fromPT(sta);
@@ -277,7 +391,48 @@ void simpleCompressor(Station &sta, float &Pratio, float &PowerReq, float &eff) 
 	calImp::getCp(sta);
 	isen::getMach(sta);
 	getA_fromMdot(sta);
+	comp.pos = sta.pos + 1;
+	sta.pos = comp.pos + 1;
 }
 
-void simpleTurbine(Station &sta, float &PowerReq, float &eff) {
+struct SimpleTurb {
+	int pos = 0;
+	float Pratio = 0.5;
+	float Power = 0.0;
+	float TW = 0.0;
+	float eff = 0.8;
+};
+void simpleTurbine(Station &sta, SimpleTurb &turb) {
+	turb.TW = turb.Power / sta.mdot;
+	double TPRaa = (turb.TW / (turb.eff * sta.Cp * sta.Tt)) + 1.0;
+	double TPRab = sta.gam / (sta.gam - 1.0); //
+	double TPRa = -pow(TPRaa, TPRab);
+	float prevTt = sta.Tt;
+	double TPRb = (sta.gam - 1) / sta.gam;
+	float Tt4a = sta.Tt * pow(-TPRa, TPRb);
+	sta.T = Tt4a / isen::getTt_T(sta.gam, sta.M);
+	float prevGam = sta.gam;
+	float prevCp = sta.Cp;
+	calImp::getGam(sta);
+	calImp::getCp(sta);
+	sta.gam += prevGam;
+	sta.Cp += prevCp;
+	sta.gam *= 0.5;
+	sta.Cp *= 0.5;
+	isen::getMach(sta);
+	TPRaa = (-turb.TW / (turb.eff * sta.Cp * prevTt)) + 1;
+	TPRab = sta.gam / (sta.gam - 1);
+	turb.Pratio = pow(TPRaa, TPRab);
+	sta.Pt *= turb.Pratio;
+	TPRb = (sta.gam - 1) / sta.gam;
+	sta.Tt *= pow(turb.Pratio, TPRb);
+	isen::getT_fromTt(sta);
+	isen::getP_fromPt(sta);
+	isen::getRho_fromPT(sta);
+	calImp::getGam(sta);
+	calImp::getCp(sta);
+	isen::getMach(sta);
+	getA_fromMdot(sta);
+	turb.pos = sta.pos + 1;
+	sta.pos = turb.pos + 1;
 }
