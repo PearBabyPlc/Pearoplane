@@ -108,6 +108,9 @@ namespace calImp {
 // ISENTROPIC RELATIONS //
 // ideal isentropic relations plus ideal gas law to find rho
 namespace isen {
+	float getTt_T(float &gam, float &M) {
+		return 1 + ((gam - 1) / 2) * pow(M, 2);
+	}
 	void getTt_fromT(Station &sta) {
 		sta.Tt = sta.T * (1 + ((sta.gam - 1) / 2) * pow(sta.M, 2));
 	}
@@ -140,6 +143,9 @@ namespace isen {
 	// can't assume the station is constantly diatomic only with combustion products
 	void getRho_fromPT(Station &sta) {
 		sta.rho = sta.P / (RsAir * sta.T);
+	}
+	float getDynamicP(Station &sta) {
+		return 0.5 * sta.rho * pow(sta.V, 2);
 	}
 }
 
