@@ -1,20 +1,29 @@
 #include "raylib.h"
 #include "resource_dir.h"
+#include "stdio.h"
+#include "stdlib.h"
+#include "main.h"
 
-int main () {
-	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
-	InitWindow(1200, 800, "Pearoplane Alpha v0.1");
-	SearchAndSetResourceDir("resources");
-	Texture pearbaby = LoadTexture("pearbaby.png");
-	
+int main() {
+	const int sW = 1200;
+	const int sH = 800;
+	InitWindow(sW, sH, "Pearoplane Alpha v0.1");
+	SetTargetFPS(60);
+
+	int i = 0;
+	char buffer[32];
+	char printString[] = "Test";
+
 	while (!WindowShouldClose()) {
+		i += 1;
+		sprintf(buffer, "%s\n\n%d", printString, i);
+		char *ptrString = buffer;
+		
 		BeginDrawing();
-		ClearBackground(BLACK);
-		DrawTexture(pearbaby, 40, 20, WHITE);
+		drawPanel(ptrString);
 		EndDrawing();
 	}
 
-	UnloadTexture(pearbaby);
 	CloseWindow();
 	return 0;
 }
