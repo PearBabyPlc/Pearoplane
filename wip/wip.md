@@ -1,1 +1,1 @@
-This is where I'm dumping the WIP C++/python code. the other 4 folders are for the four different attempts at creating a window and a triangle.
+This is where I'm dumping the WIP C++/python code for reference - will slowly be converted to ye olde C and added to the src folder.
