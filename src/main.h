@@ -1,1 +1,0 @@
-void drawPanel(char *ptrString);
