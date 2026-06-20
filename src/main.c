@@ -12,6 +12,8 @@
 #include "userinput.h"
 #include "isa.h"
 #include "formulaegg.h"
+#undef EGGIN
+#undef SHOCKIN
 #include "panel.h"
 
 // keyboard input set to default for now 
