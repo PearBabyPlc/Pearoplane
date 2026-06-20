@@ -3,9 +3,9 @@
 
 const float rEarth = 6356766;
 const float g = 9.80665;
-const float molISA = 28.9644;
-const float RISA = 8314.46;
-const float RsISA = RISA / molISA;
+const float molISA = 28.9644; //      these fuckin constants
+const float RISA = 8314.46; //        kept conflicting with
+const float RsISA = RISA / molISA; // formulaegg.c, so renamed
 
 void getISA(struct ISA *ptr) {
 	ptr->H = (rEarth * ptr->alt) / (rEarth + ptr->alt);
