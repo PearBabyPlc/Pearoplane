@@ -1,3 +1,5 @@
-// to be quite significantly expanded after the full panel is developed
+typedef char ucBuf[255];
 
-void drawPanel(char *ptrString);
+void bufferStation(ucBuf *buf, Station *sta);
+
+void drawPanel(ucBuf *ptrString, ucBuf *ptrStringB, ucBuf *ptrN);
