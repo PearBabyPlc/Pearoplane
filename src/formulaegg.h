@@ -1,5 +1,10 @@
+// macros for a slightly easier time
+#define STAT_IN Station *sta
+#define SHOCK_IN Shock *sho
+#define EXFAN_IN Expansion *fan
+
 // struct definitions
-struct Station {
+typedef struct {
 	float M;
 	float P;
 	float T;
@@ -13,56 +18,52 @@ struct Station {
 	float mdot;
 	unsigned char flow;
 	unsigned char pos;
-};
+} Station;
 
 enum ShockType {
 	SHOCKERR = 0,
 	WEAK,
 	STRONG,
-	NORMAL
+	NORMAL,
+	NO_SHOCK,
+	TOO_FAST
 };
 
-struct Shock {
+typedef struct {
 	float defDeg;
 	float shockDeg;
 	enum ShockType type;
 	unsigned char flow;
 	unsigned char pos;
-};
+} Shock;
 
-struct Expansion {
+typedef struct {
 	float defDeg;
 	float degMu1;
 	float degMu2;
 	unsigned char flow;
 	unsigned char pos;
-};
-
-// lil macro to make things slightly less annoying
-#define EGGIN struct Station *sta
-#define SHOCKIN struct Shock *sho
+} Expansion;
 
 // mass flow
-void getA_fromMdot(EGGIN);
-void getMdot_fromA(EGGIN);
+void getA_fromMdot(STAT_IN);
+void getMdot_fromA(STAT_IN);
 
 // calorically imperfect
-void getGam(EGGIN);
-void getCp(EGGIN);
+void getGam(STAT_IN);
+void getCp(STAT_IN);
 
 // isentropic
-void getTt_fromT(EGGIN);
-void getPt_fromP(EGGIN);
-void getT_fromTt(EGGIN);
-void getP_fromPt(EGGIN);
-void getVelocity(EGGIN);
-void getMach(EGGIN);
-void getRho_fromPT(EGGIN);
-float getDynamicP(EGGIN);
+void getTt_fromT(STAT_IN);
+void getPt_fromP(STAT_IN);
+void getT_fromTt(STAT_IN);
+void getP_fromPt(STAT_IN);
+void getVelocity(STAT_IN);
+void getMach(STAT_IN);
+void getRho_fromPT(STAT_IN);
+float getDynamicP(STAT_IN);
 
-// shock relations TODO
-//void updateStationNormal(EGGIN, SHOCKIN);
-//void updateStationOblique(EGGIN, SHOCKIN);
-//void updateStationPM(EGGIN, struct Expansion *fan);
-//void updateStationRayleigh(EGGIN);
-
+// solvers
+void solveShock(STAT_IN, SHOCK_IN);
+void updateStationPM(STAT_IN, EXFAN_IN);
+void updateStationRayleigh(STAT_IN);
