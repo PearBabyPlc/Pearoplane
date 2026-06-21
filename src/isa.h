@@ -1,16 +1,13 @@
-//typedef struct ISA *ISAptr;
-//for some fucking reason I can't get the typedef to work
-
-struct ISA {
+typedef struct {
 	float alt;
 	float H;
 	float T;
 	float P;
 	float rho;
 	//float RH;
-};
+} ISA;
 
-void getISA(struct ISA *ptr);
+void getISA(ISA *ptr);
 
 //void updateISA_rhoHumidity(struct ISA *ptr);
 //i'll waste my time on this later
