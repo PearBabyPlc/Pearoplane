@@ -12,8 +12,9 @@
 #include "userinput.h"
 #include "isa.h"
 #include "formulaegg.h"
-#undef EGGIN
-#undef SHOCKIN
+#undef STAT_IN
+#undef SHOCK_IN
+#undef EXFAN_IN
 #include "panel.h"
 
 // keyboard input set to default for now 
@@ -39,9 +40,22 @@ int main() {
 	float skyG;
 	float skyB;
 
-	char buffer[255];
-	struct ISA testISA;
-	struct Station testSta;
+	ucBuf buffer;
+	ucBuf bufferB;
+	ucBuf bufferN;
+	ISA testISA;
+	Station testSta;
+	Station testNormal;
+	testSta.A = 10.0;
+	testSta.flow = 1;
+	testSta.pos = 1;
+	testNormal.flow = 1;
+	testNormal.pos = 3;
+	Shock normalTest;
+	normalTest.defDeg = 10.0;
+	normalTest.flow = 1;
+	normalTest.pos = 2;
+
 	
 	while (!WindowShouldClose()) {
 		// taking user input
@@ -86,21 +100,33 @@ int main() {
 		getISA(&testISA);
 
 		// adding to station
+		// Pt Tt 
 		testSta.T = testISA.T;
 		testSta.P = testISA.P;
 		testSta.rho = testISA.rho;
 		testSta.V = velocity;
 		getGam(&testSta);
+		getCp(&testSta);
 		getMach(&testSta);
+		getPt_fromP(&testSta);
+		getTt_fromT(&testSta);
+		getMdot_fromA(&testSta);
 		Q = getDynamicP(&testSta);
+
+		testNormal = testSta;
+		testNormal.pos = 3;
+		normalTest.defDeg = 10.0;
+		solveShock(&testNormal, &normalTest);		
 		
 		// adding to the buffers
-		sprintf(buffer, "Alt: %.1f m\nV: %.1f m/s\nT: %.1f\u00B0K\nP: %.1fPa\nD: %f kg/m\u00B3\nMach %.3f\ngamma: %.3f\nQ: %.1fkPa",
+		sprintf(buffer, "Alt: %.1f m\nV: %.1f m/s\nT: %.1f\u00B0K\nP: %.1fPa\nD: %f kg/m\u00B3\nMach %.3f\ngamma: %.3f\nQ: %.1fPa",
 				altitude, velocity,
 				testISA.T, testISA.P,
 				testISA.rho,
 				testSta.M, testSta.gam, Q);
-		char *ptrString = buffer;
+		bufferStation(&bufferB, &testSta);
+		bufferStation(&bufferN, &testNormal);
+	
 		
 		// sky colour
 		if (altitude >= 80000) {
@@ -120,7 +146,7 @@ int main() {
 		// drawing the buffers
 		BeginDrawing();
 		ClearBackground((Color){skyR, skyG, skyB, 255});
-		drawPanel(ptrString);
+		drawPanel(&buffer, &bufferB, &bufferN);
 		EndDrawing();	
 	}
 
