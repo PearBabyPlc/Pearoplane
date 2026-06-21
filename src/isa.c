@@ -7,7 +7,7 @@ const float molISA = 28.9644; //      these fuckin constants
 const float RISA = 8314.46; //        kept conflicting with
 const float RsISA = RISA / molISA; // formulaegg.c, so renamed
 
-void getISA(struct ISA *ptr) {
+void getISA(ISA *ptr) {
 	ptr->H = (rEarth * ptr->alt) / (rEarth + ptr->alt);
 
 	if (ptr->H < 11000) {
@@ -109,9 +109,3 @@ void getISA(struct ISA *ptr) {
 		ptr->rho = ptr->P / (ptr->T * RsISA);
 	}
 }
-
-// https://www.isobudgets.com/moist-air-density/
-//void updateISA_rhoHumidity(struct ISA *ptr) {
-//	ptr->rho = ((0.0034848 * ptr->P) - (0.009 * ptr->RH) * exp(0.061 * (ptr->T - 273.15))) / (ptr->T);
-//}
-//try this later idfk
