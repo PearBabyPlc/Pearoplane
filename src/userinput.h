@@ -13,6 +13,14 @@ typedef enum ActionType {
 	DEV_FINE,
 	DEV_COARSE,
 	DEV_RESET,
+	PITCH_UP,
+	PITCH_DOWN,
+	YAW_LEFT,
+	YAW_RIGHT,
+	ROLL_LEFT,
+	ROLL_RIGHT,
+	THROTTLE_UP,
+	THROTTLE_DOWN,
 	MAX_ACTION
 } ActionType;
 
@@ -57,4 +65,14 @@ static void SetActionsDefault() {
 	actionInputs[DEV_FINE].key = KEY_Z;
 	actionInputs[DEV_COARSE].key = KEY_X;
 	actionInputs[DEV_RESET].key = KEY_TAB;
+	actionInputs[PITCH_UP].key = KEY_S;
+	actionInputs[PITCH_DOWN].key = KEY_W;
+	actionInputs[YAW_LEFT].key = KEY_A;
+	actionInputs[YAW_RIGHT].key = KEY_D;
+	actionInputs[ROLL_LEFT].key = KEY_Q;
+	actionInputs[ROLL_RIGHT].key = KEY_E;
+	actionInputs[THROTTLE_UP].key = KEY_LEFT_SHIFT;
+	actionInputs[THROTTLE_DOWN].key = KEY_LEFT_CONTROL;
 }
+
+
