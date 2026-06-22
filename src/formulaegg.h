@@ -2,6 +2,7 @@
 #define STAT_IN Station *sta
 #define SHOCK_IN Shock *sho
 #define EXFAN_IN Expansion *fan
+#define COMB_IN hydrogenCombustion *comb
 
 // struct definitions
 typedef struct {
@@ -45,6 +46,22 @@ typedef struct {
 	unsigned char pos;
 } Expansion;
 
+enum combType {
+	CONG = 0,
+	SUBSONIC,
+	SCRAMJET
+};
+
+typedef struct {
+	float maxTemp;
+	float limMach;
+	float LHV;
+	float fuelMdot;
+	enum combType type;
+	unsigned char flow;
+	unsigned char pos;
+} hydrogenCombustion;
+
 // mass flow
 void getA_fromMdot(STAT_IN);
 void getMdot_fromA(STAT_IN);
@@ -65,5 +82,7 @@ float getDynamicP(STAT_IN);
 
 // solvers
 void solveShock(STAT_IN, SHOCK_IN);
-void updateStationPM(STAT_IN, EXFAN_IN);
-void updateStationRayleigh(STAT_IN);
+void solveExpansion(STAT_IN, EXFAN_IN);
+void solveSubsonicCombustion(STAT_IN, COMB_IN);
+
+// solution to performance issues maybe - for wings change how often PM angles are calculated (more often below Mach 3, less often above)
