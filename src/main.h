@@ -14,8 +14,8 @@ void updateViewState(ViewState *view);
 void userKeyInput(ScreenState *scr, ViewState *outside, ViewState *orbital);
 
 void drawMenu();
-void drawOutside(ViewState *view);
-void drawOrbital(ViewState *view);
+void drawOutside(ViewState *view, char *printViewBuf);
+void drawOrbital(ViewState *view, char *printViewBuf);
 void drawPanel();
 void drawAero();
 void drawProp();
