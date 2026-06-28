@@ -44,4 +44,3 @@ void userKeyInput(ScreenState *scr, ViewState *outside, ViewState *orbital) {
 		updateViewState(orbital);
 	}
 }
-
