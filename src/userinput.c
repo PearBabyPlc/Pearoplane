@@ -3,8 +3,8 @@
 #include "main.h"
 
 #define DEFAULT_ANGLE_STEP 0.05
-#define DEFAULT_ZOOM_STEP 0.005
-#define MAX_ZOOM 10.0
+#define DEFAULT_ZOOM_STEP 0.5
+#define MAX_ZOOM 100000.0
 #define MIN_ZOOM 0.01
 
 void updateViewState(ViewState *view) {
@@ -29,7 +29,24 @@ void updateViewState(ViewState *view) {
 	}
 }
 
-void userKeyInput(ScreenState *scr, ViewState *outside, ViewState *orbital) {
+void updateAeroTest(AeroTest *ptr) {
+	if (IsKeyPressed(KEY_TAB)) {
+		ptr->altitude = 0.0;
+		ptr->velocity = 0.0;
+		ptr->AoA = 0.0;
+	} 
+
+	if (IsKeyDown(KEY_UP)) ptr->altitude += 0.5;
+	if (IsKeyDown(KEY_DOWN)) ptr->altitude -= 0.5;
+	if (IsKeyDown(KEY_LEFT)) ptr->velocity -= 0.01;
+	if (IsKeyDown(KEY_RIGHT)) ptr->velocity += 0.01;
+	if (IsKeyDown(KEY_W)) ptr->AoA -= 0.001;
+	if (IsKeyDown(KEY_S)) ptr->AoA += 0.001;
+	if (ptr->altitude < 0.0) ptr->altitude = 0.0;
+	if (ptr->velocity < 0.0) ptr->velocity = 0.0;
+}
+
+void userKeyInput(ScreenState *scr, ViewState *outside, ViewState *orbital, AeroTest *aeroptr) {
 	if (IsKeyPressed(KEY_ZERO)) scr->currentScreen = 0;
 	if (IsKeyPressed(KEY_ONE)) scr->currentScreen = 1;
 	if (IsKeyPressed(KEY_TWO)) scr->currentScreen = 2;
@@ -43,4 +60,9 @@ void userKeyInput(ScreenState *scr, ViewState *outside, ViewState *orbital) {
 	if (scr->currentScreen == 2) {
 		updateViewState(orbital);
 	}
+
+	if (scr->currentScreen ==4) {
+		updateAeroTest(aeroptr);
+	}
 }
+
