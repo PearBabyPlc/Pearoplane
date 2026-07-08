@@ -20,7 +20,7 @@
 #define ORBY 0.1
 #define ORBZ -10000.0
 #define ORBDX -0.1
-#define ORBDY -8500.0
+#define ORBDY -7500.0
 #define ORBDZ 100.0
 #define ORBINIT {.x = ORBX, .y = ORBY, .dx = ORBDX, .dy = ORBDY, .g = 9.8, .Hkm = -69.0f, .Vms = 420.0f, .timer = 0.0f}
 
@@ -116,7 +116,7 @@ void orbit2D() {
 			earthX = -(orbit.x * scale) + shipX;
 			earthY = -(orbit.y * scale) + shipY;
 
-			sprintf(buffer, "Map view\nAltitude: %.1fkm\nVelocity: %.1fm/s\nGravity: %.5fm/s^2\nzoom=%f\nwarp=%f", orbit.Hkm, orbit.Vms, orbit.g, shipZoom, warps[warp]);
+			sprintf(buffer, "Ship view\nAltitude: %.1fkm\nVelocity: %.1fm/s\nGravity: %.5fm/s^2\nzoom=%f\nwarp=%f", orbit.Hkm, orbit.Vms, orbit.g, shipZoom, warps[warp]);
 		} else if (camTarget == 1) {
 			mapZoom = expf(logf(mapZoom + ((float)GetMouseWheelMove() * 0.01)));
 			if (mapZoom < 0.01) mapZoom = 0.01;
@@ -151,4 +151,3 @@ void orbit2D() {
 
 	CloseWindow();
 }
-
