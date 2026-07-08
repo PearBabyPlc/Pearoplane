@@ -22,7 +22,7 @@
 #include "main.h"
 
 int main() {
-	flight3D();
+	cube3D();
 	orbit2D();
 	return 0;
 }
