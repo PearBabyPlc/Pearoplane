@@ -1,11 +1,22 @@
 // universal definitions
-#define DEFAULT_W 1200
-#define DEFAULT_H 800
+#define DEFAULT_W 1400 // used to be 1200x800, changed to 
+#define DEFAULT_H 720  // 35mm film dimensions for easier optics
 #define G_UNIV 6.6743E-11
 #define M_EARTH 5.97217E24
 #define R_EARTH 6356766.0
 #define ZOOM_SHIP 0.0005
 #define ZOOM_MAP 0.000025
+
+// these may have been defined before, so there's a bunch of ifndef stuff
+#ifndef PI
+#define PI 3.14159265358979323846
+#endif
+#ifndef RAD_DEG
+#define RAD_DEG 57.295780181884765625
+#endif
+#ifndef DEG_RAD
+#define DEG_RAD 0.01745329238474369049072265625
+#endif
 
 typedef struct {
 	double x;
@@ -48,4 +59,4 @@ typedef struct {
 } Poly4;
 
 void orbit2D();
-void flight3D();
+void cube3D();
