@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-# navigate to root folder
+# navigate to root folder for raylib build
 cd "$(dirname "$0")"
 
-# clone raylib quickstart git repo
-git clone https://github.com/raylib-extras/raylib-quickstart.git pearoplane-alpha
+# clone raylib quickstart git repo (pear patch)
+git clone https://github.com/PearBabyPlc/raylib-quickstart-pearpatch.git pearoplane-alpha
 
 # delete and recreate resources folder
 cd "$(dirname "$0")/pearoplane-alpha"
@@ -27,4 +27,3 @@ make
 # run binary
 cd "$(dirname "$0")/pearoplane-alpha/bin/debug"
 ./pearoplane-alpha
-
