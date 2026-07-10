@@ -1,8 +1,8 @@
 GLFW_ICON ICON "icon.ico"
 
 1 VERSIONINFO
-FILEVERSION     0,0,3,0
-PRODUCTVERSION  0,0,3,0
+FILEVERSION     0,0,4,0
+PRODUCTVERSION  0,0,4,0
 BEGIN
   BLOCK "StringFileInfo"
   BEGIN
@@ -10,13 +10,13 @@ BEGIN
     BLOCK "040904E4"    // English US
     BEGIN
       //VALUE "CompanyName", "raylib technologies"
-      VALUE "FileDescription", "Flight simulator with pear-like characteristics. 3rd attempt, very early alpha. Made with raylib (www.raylib.com)"
-      VALUE "FileVersion", "0.0.3"
+      VALUE "FileDescription", "Flight simulator with pear-like characteristics. 4rd attempt, very early alpha. Made with raylib (www.raylib.com)"
+      VALUE "FileVersion", "0.0.4"
       VALUE "InternalName", "pearoplane-alpha"
-      VALUE "LegalCopyright", "(c) 2025 Pearbaby plc"
+      VALUE "LegalCopyright", "(c) 2026 Pearbaby plc"
       //VALUE "OriginalFilename", "raylib_app"
       VALUE "ProductName", "Pearoplane"
-      VALUE "ProductVersion", "0.0.3"
+      VALUE "ProductVersion", "0.0.4"
     END
   END
   BLOCK "VarFileInfo"
