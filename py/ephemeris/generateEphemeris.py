@@ -76,7 +76,7 @@ bodies = ["Mercury",
           "Neptune", "Proteus", "Triton", "Nereid"]
 
 o = sys.stdout
-with open("ephemeris.h", "w") as f:
+with open("generatedEphemeris.h", "w") as f:
     sys.stdout = f
     for x in bodies:
         getEphem(x)
