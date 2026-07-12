@@ -108,7 +108,7 @@ int main() {
 			if (isPaused == 0) isPaused = 1;
 			else if (isPaused == 1) isPaused = 0;
 		}
-		printf("camTarg = %d\n", camTarg);
+		
 		BeginDrawing();
 		ClearBackground(BLACK);
 		BeginMode3D(camera);
