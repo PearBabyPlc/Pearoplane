@@ -44,4 +44,8 @@ void keplerOrbitDVec3(DVec3 *ptr, DVec3 *origin, double t, double ecc, double in
 }
 // unsure if the rotation matrices are correct, we shall see. probably need to ensure correct reference axes are used
 
+void runKeplerOrbit() {
+}
+
 #endif
+
